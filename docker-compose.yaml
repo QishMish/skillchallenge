@@ -1,0 +1,87 @@
+version: "3.8"
+services:
+  authPg:
+    image: postgres:latest
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: skillchallenge
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    # networks:
+    #   - backend
+  # rabbitmq:
+  #   image: rabbitmq:3.8.25-management-alpine
+  #   container_name: "rabbitmq"
+  #   ports:
+  #     - 5672:5672
+  #     - 15672:15672
+  #   volumes:
+  #     - rabbit_data:/var/lib/rabbitmq/
+  #     - rabbit_data:/var/log/rabbitmq/
+    # networks:
+    #   - backend
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - '5672:5672'
+  redis:
+    image: redis:7-alpine
+    ports:
+      - 6380:6379
+  auth:
+    build:
+      context: ./
+      dockerfile: apps/auth/Dockerfile
+    command: npm run start:dev auth
+    volumes:
+      - .:/usr/src/auth
+      - /usr/src/auth/node_modules
+    ports:
+      - "3001:3001"
+    depends_on:
+      - authPg
+      - mailer
+      - rabbitmq
+    # networks:
+    #   - backend
+    env_file:
+      - "apps/auth/.env"
+    links:
+      - rabbitmq
+    environment:
+      # - RABBIT_MQ_URI=amqp://guest:guest@rabbitmq:5672
+      - RABBIT_MQ_URI=amqp://rabbitmq:5672
+  mailer:
+    build:
+      context: ./
+      dockerfile: apps/mailer/Dockerfile
+    command: npm run start:dev mailer
+    volumes:
+      - .:/usr/src/mailer
+      - /usr/src/auth/node_modules
+    ports:
+      - "3002:3002"
+    depends_on:
+      - rabbitmq
+    # networks:
+    #   - backend
+    env_file:
+      - "apps/mailer/.env"
+    links:
+      - rabbitmq
+    environment:
+     # - RABBIT_MQ_URI=amqp://guest:guest@rabbitmq:5672
+     - RABBIT_MQ_URI=amqp://rabbitmq:5672
+# networks:
+#   backend:
+#     driver: bridge
+volumes:
+  pg_data:
+    driver: local
+  rabbit_data:
+    driver: local
+  mongo_data:
+    driver: local
