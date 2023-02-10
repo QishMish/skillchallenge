@@ -1,0 +1,3 @@
+const OPTION_SERVICE = Symbol("OPTION_SERVICE");
+
+export { OPTION_SERVICE };

@@ -18,15 +18,6 @@
         "tsConfigPath": "apps/auth/tsconfig.app.json"
       }
     },
-    "analytics": {
-      "type": "application",
-      "root": "apps/analytics",
-      "entryFile": "main",
-      "sourceRoot": "apps/analytics/src",
-      "compilerOptions": {
-        "tsConfigPath": "apps/analytics/tsconfig.app.json"
-      }
-    },
     "mailer": {
       "type": "application",
       "root": "apps/mailer",
@@ -52,6 +43,69 @@
       "sourceRoot": "libs/health-check/src",
       "compilerOptions": {
         "tsConfigPath": "libs/health-check/tsconfig.lib.json"
+      }
+    },
+    "api-gateway": {
+      "type": "application",
+      "root": "apps/api-gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/api-gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/api-gateway/tsconfig.app.json"
+      }
+    },
+    "token": {
+      "type": "application",
+      "root": "apps/token",
+      "entryFile": "main",
+      "sourceRoot": "apps/token/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/token/tsconfig.app.json"
+      }
+    },
+    "token-lib": {
+      "type": "library",
+      "root": "libs/token",
+      "entryFile": "index",
+      "sourceRoot": "libs/token/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/token/tsconfig.lib.json"
+      }
+    },
+    "skill-test": {
+      "type": "application",
+      "root": "apps/skill-test",
+      "entryFile": "main",
+      "sourceRoot": "apps/skill-test/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/skill-test/tsconfig.app.json"
+      }
+    },
+    "skill-test-lib": {
+      "type": "library",
+      "root": "libs/skill-test",
+      "entryFile": "index",
+      "sourceRoot": "libs/skill-test/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/skill-test/tsconfig.lib.json"
+      }
+    },
+    "question": {
+      "type": "library",
+      "root": "libs/question",
+      "entryFile": "index",
+      "sourceRoot": "libs/question/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/question/tsconfig.lib.json"
+      }
+    },
+    "option": {
+      "type": "library",
+      "root": "libs/option",
+      "entryFile": "index",
+      "sourceRoot": "libs/option/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/option/tsconfig.lib.json"
       }
     }
   }

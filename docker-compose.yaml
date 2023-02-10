@@ -21,12 +21,12 @@ services:
   #   volumes:
   #     - rabbit_data:/var/lib/rabbitmq/
   #     - rabbit_data:/var/log/rabbitmq/
-    # networks:
-    #   - backend
+  # networks:
+  #   - backend
   rabbitmq:
     image: rabbitmq
     ports:
-      - '5672:5672'
+      - "5672:5672"
   redis:
     image: redis:7-alpine
     ports:
@@ -52,7 +52,6 @@ services:
     links:
       - rabbitmq
     environment:
-      # - RABBIT_MQ_URI=amqp://guest:guest@rabbitmq:5672
       - RABBIT_MQ_URI=amqp://rabbitmq:5672
   mailer:
     build:
@@ -73,8 +72,49 @@ services:
     links:
       - rabbitmq
     environment:
-     # - RABBIT_MQ_URI=amqp://guest:guest@rabbitmq:5672
-     - RABBIT_MQ_URI=amqp://rabbitmq:5672
+      - RABBIT_MQ_URI=amqp://rabbitmq:5672
+  api-gateway:
+    build:
+      context: ./
+      dockerfile: apps/api-gateway/Dockerfile
+    command: npm run start:dev api-gateway
+    volumes:
+      - .:/usr/src/api-gateway
+      - /usr/src/api-gateway/node_modules
+    ports:
+      - "5000:5000"
+    depends_on:
+      - rabbitmq
+    # networks:
+    #   - backend
+    env_file:
+      - "apps/api-gateway/.env"
+    links:
+      - rabbitmq
+      - mailer
+      - auth
+    environment:
+      - RABBIT_MQ_URI=amqp://rabbitmq:5672
+  token:
+    build:
+      context: ./
+      dockerfile: apps/token/Dockerfile
+    command: npm run start:dev token
+    volumes:
+      - .:/usr/src/token
+      - /usr/src/token/node_modules
+    ports:
+      - "3004:3004"
+    depends_on:
+      - rabbitmq
+    # networks:
+    #   - backend
+    env_file:
+      - "apps/token/.env"
+    links:
+      - rabbitmq
+    environment:
+      - RABBIT_MQ_URI=amqp://rabbitmq:5672
 # networks:
 #   backend:
 #     driver: bridge

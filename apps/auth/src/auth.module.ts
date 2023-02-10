@@ -1,20 +1,20 @@
-import { HealthCheckModule } from './../../../libs/health-check/src/health-check.module';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Module, ClassSerializerInterceptor } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserEntity } from '@app/users';
-import { AuthController } from './auth.controller';
-import { AuthLibModule } from '@app/auth';
-import * as Joi from '@hapi/joi';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { RmqModule } from '@app/rmq';
+import { HealthCheckModule } from "./../../../libs/health-check/src/health-check.module";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { Module, ClassSerializerInterceptor } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { UserEntity } from "@app/users";
+import { AuthController } from "./auth.controller";
+import { AuthLibModule } from "@app/auth";
+import * as Joi from "@hapi/joi";
+import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
+import { RmqModule } from "@app/rmq";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['./apps/auth/.env'],
+      envFilePath: ["./apps/auth/.env"],
       validationSchema: Joi.object({
         ENV: Joi.string().required(),
         PORT: Joi.number().required(),
@@ -36,15 +36,15 @@ import { RmqModule } from '@app/rmq';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {
-          type: 'postgres',
-          host: configService.get('DB_HOST'),
-          port: configService.get('DB_PORT'),
-          username: configService.get('DB_USER'),
-          password: configService.get('DB_PASWORD'),
-          database: configService.get('DB_NAME'),
+          type: "postgres",
+          host: configService.get("DB_HOST"),
+          port: configService.get("DB_PORT"),
+          username: configService.get("DB_USER"),
+          password: configService.get("DB_PASWORD"),
+          database: configService.get("DB_NAME"),
           synchronize: true,
           logging:
-            configService.get('NODE_ENV') === 'development' ? true : false,
+            configService.get("NODE_ENV") === "development" ? true : false,
           entities: [UserEntity],
         };
       },
@@ -54,10 +54,15 @@ import { RmqModule } from '@app/rmq';
       limit: 10,
     }),
     RmqModule.register({
-      name:"MAILER"
+      name: "MAILER",
+    }),
+    RmqModule.register({
+      name: "TOKEN",
     }),
     AuthLibModule,
-    HealthCheckModule
+    HealthCheckModule.register({
+      serviceName: "auth",
+    }),
   ],
   controllers: [AuthController],
   providers: [

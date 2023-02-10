@@ -1,0 +1,3 @@
+const QUESTION_SERVICE = Symbol('QUESTION_SERVICE');
+
+export { QUESTION_SERVICE };

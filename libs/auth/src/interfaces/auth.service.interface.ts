@@ -3,6 +3,8 @@ import {
   BaseUser,
   SignUpUser,
   JWTAuthPayload,
+  AuthTokens,
+  AuthCookies,
 } from '@app/types';
 
 interface AuthServiceInterface {
@@ -14,6 +16,7 @@ interface AuthServiceInterface {
   generateJwtRefreshTokenCookie(
     payload: JWTAuthPayload,
   ): Promise<AuthTokenWithCookiesResponse>;
+  generateAuthCookies(tokens: AuthTokens): AuthCookies
   generateLogOutCookie(): string[];
   setHashedRefreshToken(
     userId: number,

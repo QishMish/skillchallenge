@@ -65,6 +65,30 @@
       ],
       "@app/health-check/*": [
         "libs/health-check/src/*"
+      ],
+      "@app/token": [
+        "libs/token/src"
+      ],
+      "@app/token/*": [
+        "libs/token/src/*"
+      ],
+      "@app/skill-test": [
+        "libs/skill-test/src"
+      ],
+      "@app/skill-test/*": [
+        "libs/skill-test/src/*"
+      ],
+      "@app/question": [
+        "libs/question/src"
+      ],
+      "@app/question/*": [
+        "libs/question/src/*"
+      ],
+      "@app/option": [
+        "libs/option/src"
+      ],
+      "@app/option/*": [
+        "libs/option/src/*"
       ]
     }
   }

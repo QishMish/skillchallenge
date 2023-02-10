@@ -6,6 +6,8 @@ import { MailerLibModule } from "@app/mail";
 import { RmqModule } from "@app/rmq";
 import * as Joi from "joi";
 import { BullModule } from "@nestjs/bull";
+import { APP_GUARD } from "@nestjs/core";
+import { AuthLibModule, JwtAuthGuard } from "@app/auth";
 
 @Module({
   imports: [
@@ -27,7 +29,9 @@ import { BullModule } from "@nestjs/bull";
     }),
     MailerLibModule,
     RmqModule.register({ name: "MAILER" }),
-    HealthCheckModule,
+    HealthCheckModule.register({
+      serviceName: "mailer",
+    }),
   ],
   controllers: [MailerController],
   providers: [],

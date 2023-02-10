@@ -3,7 +3,7 @@ import { MailServiceInterface, MAIL_SERVICE } from "@app/mail";
 import { Body, Controller, Get, Inject, Post } from "@nestjs/common";
 import { ClientGrpcProxy, EventPattern, Payload } from "@nestjs/microservices";
 
-@Controller()
+@Controller("")
 export class MailerController {
   constructor(
     @Inject(MAIL_SERVICE) private readonly mailerService: MailServiceInterface

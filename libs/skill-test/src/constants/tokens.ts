@@ -1,0 +1,3 @@
+const SKILL_TEST_SERVICE = Symbol('SKILL_TEST_SERVICE');
+
+export { SKILL_TEST_SERVICE };

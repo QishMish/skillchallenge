@@ -22,12 +22,14 @@ import { UseInterceptors } from "@nestjs/common";
 import { ClassSerializerInterceptor } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
 import { ClientProxy } from "@nestjs/microservices";
+import { firstValueFrom } from "rxjs";
 
 @Controller()
 export class AuthController implements OnApplicationBootstrap {
   constructor(
     @Inject(AUTH_SERVICE) private readonly authService: AuthServiceInterface,
-    @Inject("MAILER") private readonly mailClient: ClientProxy
+    @Inject("MAILER") private readonly mailClient: ClientProxy,
+    @Inject("TOKEN") private readonly tokenClient: ClientProxy
   ) {}
   async onApplicationBootstrap() {
     await this.mailClient.connect().catch((err) => console.log(err));
@@ -45,17 +47,31 @@ export class AuthController implements OnApplicationBootstrap {
 
     const { id: userId, name, email } = user;
 
-    const { cookie: accessCookie } =
-      await this.authService.generateJwtAccesTokenCookie({
-        userId,
-        name,
-        email,
-      });
-    const { cookie: refreshCookie, token: refreshToken } =
-      await this.authService.generateJwtRefreshTokenCookie({
-        userId,
-        name,
-        email,
+    // const { cookie: accessCookie } =
+    //   await this.authService.generateJwtAccesTokenCookie({
+    //     userId,
+    //     name,
+    //     email,
+    //   });
+    // const { cookie: refreshCookie, token: refreshToken } =
+    //   await this.authService.generateJwtRefreshTokenCookie({
+    //     userId,
+    //     name,
+    //     email,
+    //   });
+
+    const { accessToken, refreshToken } = await firstValueFrom(
+      this.tokenClient.send("sign_auth_tokens", {
+        id: userId,
+        name: name,
+        email: email,
+      })
+    );
+
+    const { accessCookie, refreshCookie } =
+      await this.authService.generateAuthCookies({
+        accessToken: accessToken,
+        refreshToken: refreshToken,
       });
 
     await this.authService.setHashedRefreshToken(userId, refreshToken);
@@ -81,20 +97,34 @@ export class AuthController implements OnApplicationBootstrap {
   ): Promise<BaseUser> {
     const { id: userId, name, email } = user;
 
-    const { cookie: accessCookie } =
-      await this.authService.generateJwtAccesTokenCookie({
-        userId,
-        name,
-        email,
-      });
+    // const { cookie: accessCookie } =
+    //   await this.authService.generateJwtAccesTokenCookie({
+    //     userId,
+    //     name,
+    //     email,
+    //   });
 
-    const { cookie: refreshCookie, token: refreshToken } =
-      await this.authService.generateJwtRefreshTokenCookie({
-        userId,
-        name,
-        email,
-      });
+    // const { cookie: refreshCookie, token: refreshToken } =
+    //   await this.authService.generateJwtRefreshTokenCookie({
+    //     userId,
+    //     name,
+    //     email,
+    //   });
 
+    const { accessToken, refreshToken } = await firstValueFrom(
+      this.tokenClient.send("sign_auth_tokens", {
+        id: userId,
+        name: name,
+        email: email,
+      })
+    );
+
+    const { accessCookie, refreshCookie } =
+    await this.authService.generateAuthCookies({
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+    });
+    
     await this.authService.setHashedRefreshToken(userId, refreshToken);
 
     res.setHeader("Set-Cookie", [accessCookie, refreshCookie]);

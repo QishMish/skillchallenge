@@ -4,4 +4,16 @@ interface JWTAuthPayload {
   name: string;
 }
 
-export { JWTAuthPayload };
+interface TokenResponse {
+  accessToken: string;
+  refreshToken: string;
+}
+
+interface AuthTokens extends TokenResponse {}
+
+interface AuthCookies {
+  accessCookie: string;
+  refreshCookie: string;
+}
+
+export { JWTAuthPayload, TokenResponse, AuthTokens, AuthCookies };
