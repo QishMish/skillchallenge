@@ -20,8 +20,16 @@ services:
       POSTGRES_DB: skillchallenge_media
     volumes:
       - media_pg_data:/var/lib/postgresql/data
-    # networks:
-    #   - backend
+  skilltestPg:
+    image: postgres:latest
+    ports:
+      - "5435:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: skillchallenge_skilltest
+    volumes:
+      - skilltest_pg_data:/var/lib/postgresql/data
   rabbitmq:
     image: rabbitmq:3.9.10-management
     container_name: "rabbitmq"
@@ -31,12 +39,6 @@ services:
     # volumes:
     #   - rabbit_data:/var/lib/rabbitmq/
     #   - rabbit_data:/var/log/rabbitmq/
-  # networks:
-  #   - backend
-  # rabbitmq:
-  #   image: rabbitmq
-  #   ports:
-  #     - "5672:5672"
   redis:
     image: redis:7-alpine
     ports:
@@ -55,8 +57,6 @@ services:
       - authPg
       - mailer
       - rabbitmq
-    # networks:
-    #   - backend
     env_file:
       - "apps/auth/.env"
     links:
@@ -75,14 +75,23 @@ services:
       - "3002:3002"
     depends_on:
       - rabbitmq
-    # networks:
-    #   - backend
     env_file:
       - "apps/mailer/.env"
     links:
       - rabbitmq
     environment:
       - RABBIT_MQ_URI=amqp://rabbitmq:5672
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
+      - "433:433"
+    depends_on:
+      - mailer
+      - token
+      - auth
+      - media
   api-gateway:
     build:
       context: ./
@@ -95,8 +104,6 @@ services:
       - "5000:5000"
     depends_on:
       - rabbitmq
-    # networks:
-    #   - backend
     env_file:
       - "apps/api-gateway/.env"
     links:
@@ -117,8 +124,6 @@ services:
       - "3004:3004"
     depends_on:
       - rabbitmq
-    # networks:
-    #   - backend
     env_file:
       - "apps/token/.env"
     links:
@@ -137,12 +142,29 @@ services:
       - "3006:3006"
     depends_on:
       - mediaPg
-      # - mailer
       - rabbitmq
-    # networks:
-    #   - backend
     env_file:
       - "apps/media/.env"
+    links:
+      - rabbitmq
+    environment:
+      - RABBIT_MQ_URI=amqp://rabbitmq:5672
+  skilltest:
+    build:
+      context: ./
+      dockerfile: apps/skill-test/Dockerfile
+    command: npm run start:dev skill-test
+    volumes:
+      - .:/usr/src/skill-test
+      - /usr/src/skilltest/node_modules
+    ports:
+      - "3007:3007"
+    depends_on:
+      - skilltestPg
+      - auth
+      - rabbitmq
+    env_file:
+      - "apps/skill-test/.env"
     links:
       - rabbitmq
     environment:
@@ -153,6 +175,7 @@ services:
 volumes:
   auth_pg_data:
   media_pg_data:
+  skilltest_pg_data:
   rabbit_data:
     driver: local
   mongo_data:

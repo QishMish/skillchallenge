@@ -19,9 +19,6 @@ export class RmqModule {
           {
             name,
             useFactory: (configService: ConfigService) => {
-              console.log(configService.get<string>('RABBIT_MQ_URI'))
-              console.log(configService.get<string>(`RABBIT_MQ_${name}_QUEUE`))
-              
               return {
                 transport: Transport.RMQ,
                 options: {

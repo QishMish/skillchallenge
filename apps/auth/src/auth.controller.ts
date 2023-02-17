@@ -14,8 +14,8 @@ import { SignUpDto } from "./dtos";
 import { AUTH_SERVICE, SignOutResponseInterceptor } from "@app/auth";
 import { AuthServiceInterface, JwtAuthGuard } from "@app/auth";
 import { UseGuards } from "@nestjs/common";
-import { User } from "@app/auth";
-import { BaseUser, AuthTokens } from "@app/types";
+import { CurrentUser } from "@app/auth";
+import { BaseUser, AuthTokens, JWTAuthPayload } from "@app/types";
 import { AuthGuard } from "@nestjs/passport";
 import { Request } from "@nestjs/common";
 import { UseInterceptors } from "@nestjs/common";
@@ -23,12 +23,15 @@ import { ClassSerializerInterceptor } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
 import { ClientProxy, MessagePattern, Payload } from "@nestjs/microservices";
 import { firstValueFrom, lastValueFrom } from "rxjs";
-import { SIGN_AUTH_TOKENS, VALIDATE_TOKEN } from "@app/common";
+import { GET_USERS_BY_IDS, SIGN_AUTH_TOKENS, VALIDATE_TOKEN } from "@app/common";
+import { UsersServiceInterface, USERS_SERVICE } from "@app/users";
+import { In } from "typeorm";
 
 @Controller()
 export class AuthController implements OnApplicationBootstrap {
   constructor(
     @Inject(AUTH_SERVICE) private readonly authService: AuthServiceInterface,
+    @Inject(USERS_SERVICE) private readonly usersService: UsersServiceInterface,
     @Inject("MAILER") private readonly mailClient: ClientProxy,
     @Inject("TOKEN") private readonly tokenClient: ClientProxy
   ) {}
@@ -48,24 +51,12 @@ export class AuthController implements OnApplicationBootstrap {
 
     const { id: userId, name, email } = user;
 
-    // const { cookie: accessCookie } =
-    //   await this.authService.generateJwtAccesTokenCookie({
-    //     userId,
-    //     name,
-    //     email,
-    //   });
-    // const { cookie: refreshCookie, token: refreshToken } =
-    //   await this.authService.generateJwtRefreshTokenCookie({
-    //     userId,
-    //     name,
-    //     email,
-    //   });
-
     const { accessToken, refreshToken } = await firstValueFrom(
       this.tokenClient.send(SIGN_AUTH_TOKENS, {
-        id: userId,
+        userId: userId,
         name: name,
         email: email,
+        role: user.role.name,
       })
     );
 
@@ -98,25 +89,12 @@ export class AuthController implements OnApplicationBootstrap {
   ): Promise<BaseUser> {
     const { id: userId, name, email } = user;
 
-    // const { cookie: accessCookie } =
-    //   await this.authService.generateJwtAccesTokenCookie({
-    //     userId,
-    //     name,
-    //     email,
-    //   });
-
-    // const { cookie: refreshCookie, token: refreshToken } =
-    //   await this.authService.generateJwtRefreshTokenCookie({
-    //     userId,
-    //     name,
-    //     email,
-    //   });
-
     const { accessToken, refreshToken } = await lastValueFrom(
       this.tokenClient.send(SIGN_AUTH_TOKENS, {
-        id: userId,
+        userId: userId,
         name: name,
         email: email,
+        role: user.role.name,
       })
     );
 
@@ -153,6 +131,7 @@ export class AuthController implements OnApplicationBootstrap {
         userId,
         name,
         email,
+        role: user.role.name,
       });
 
     const { cookie: refreshCookie, token: refreshToken } =
@@ -160,6 +139,7 @@ export class AuthController implements OnApplicationBootstrap {
         userId,
         name,
         email,
+        role: user.role.name,
       });
 
     await this.authService.setHashedRefreshToken(userId, refreshToken);
@@ -174,7 +154,7 @@ export class AuthController implements OnApplicationBootstrap {
   @UseInterceptors(SignOutResponseInterceptor)
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.ACCEPTED)
-  public async signOut(@User() user: BaseUser): Promise<void> {
+  public async signOut(@CurrentUser() user: BaseUser): Promise<void> {
     await this.authService.removeRefreshToken(user.id);
     return void 0;
   }
@@ -183,16 +163,41 @@ export class AuthController implements OnApplicationBootstrap {
   @Throttle(100, 60)
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  public currentUser(@User() user: BaseUser): BaseUser {
+  public currentUser(@CurrentUser() user: BaseUser): BaseUser {
     return user;
   }
 
   @MessagePattern(VALIDATE_TOKEN)
-  @Throttle(100, 60)
   @HttpCode(HttpStatus.OK)
   public validateToken(
     @Payload() payload: Omit<AuthTokens, "refreshToken">
-  ): Promise<BaseUser> {
+  ): Promise<JWTAuthPayload> {
     return this.authService.validateAccessToken(payload.accessToken);
+  }
+
+  @MessagePattern(GET_USERS_BY_IDS)
+  @HttpCode(HttpStatus.OK)
+  public async getUserById(
+    @Payload() payload: { ids: number[] }
+  ): Promise<Record<number, JWTAuthPayload>> {
+
+    const users = await this.usersService.find({
+      where: {
+        id: In(payload.ids),
+      },
+    });
+
+    let normalizedUsers: Record<number, JWTAuthPayload> = {};
+
+    users.forEach((user) => {
+      normalizedUsers[user.id] = {
+        userId: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role.name,
+      };
+    });
+
+    return normalizedUsers;
   }
 }

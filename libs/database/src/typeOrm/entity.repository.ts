@@ -1,13 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from "@nestjs/common";
 import {
   Repository,
   FindManyOptions,
   FindOneOptions,
   FindOptionsWhere,
   ObjectLiteral,
-} from 'typeorm';
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { EntityRepositoryInterface } from './entity.repository.interface';
+} from "typeorm";
+import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity";
+import { EntityRepositoryInterface } from "./entity.repository.interface";
 
 @Injectable()
 export abstract class EntityRepository<T extends ObjectLiteral>
@@ -30,7 +30,7 @@ export abstract class EntityRepository<T extends ObjectLiteral>
 
   update(
     option: FindOptionsWhere<T>,
-    entity: QueryDeepPartialEntity<T>,
+    entity: QueryDeepPartialEntity<T>
   ): Promise<boolean | T> {
     return this.entityRepository
       .update(option, entity)

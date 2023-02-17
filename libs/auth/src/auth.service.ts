@@ -16,6 +16,7 @@ import {
   BaseUser,
   AuthTokens,
   AuthCookies,
+  RoleEnum,
 } from "@app/types";
 import { CryptoService, JwtLibService } from "@app/utils";
 import { AuthServiceInterface } from "./interfaces";
@@ -46,6 +47,9 @@ export class AuthService implements AuthServiceInterface {
       const newUser = await this.usersService.create({
         ...user,
         password: hashedPassword,
+        role: {
+          name: RoleEnum.USER,
+        },
       });
 
       return newUser;
@@ -143,7 +147,9 @@ export class AuthService implements AuthServiceInterface {
     return this.usersService.removeRefreshToken(userId);
   }
 
-  public async validateAccessToken(accessToken: string): Promise<BaseUser> {
+  public async validateAccessToken(
+    accessToken: string
+  ): Promise<JWTAuthPayload> {
     const payload = await this.jwtService.validateJwtAccessToken(accessToken);
 
     if (!payload) {
@@ -160,7 +166,12 @@ export class AuthService implements AuthServiceInterface {
       throw new UnauthorizedException();
     }
 
-    return user;
+    return {
+      userId: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role.name,
+    };
   }
 
   private validateConfirmPassword(

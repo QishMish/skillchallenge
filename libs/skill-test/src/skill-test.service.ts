@@ -7,7 +7,10 @@ import { SkillTestRepository } from "./skill-test.repository";
 @Injectable()
 export class SkillTestService implements SkillTestsServiceInterface {
   constructor(private readonly skillTestsRepository: SkillTestRepository) {}
-  create(entity: unknown): Promise<BaseSkillTest> {
+  create(entity: SkillTest): Promise<BaseSkillTest> {
+    if (entity.time) {
+      entity.expiresAt = new Date(new Date().getTime() + entity.time * 60000);
+    }
     return this.skillTestsRepository.create(entity);
   }
   find(filterOptions?: FindManyOptions<SkillTest>): Promise<BaseSkillTest[]> {
@@ -23,6 +26,6 @@ export class SkillTestService implements SkillTestsServiceInterface {
     return this.skillTestsRepository.update(option, entity);
   }
   delete(option: FindOneOptions<SkillTest>): Promise<boolean | BaseSkillTest> {
-    return this.skillTestsRepository.create(option);
+    return this.skillTestsRepository.delete(option);
   }
 }

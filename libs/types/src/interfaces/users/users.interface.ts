@@ -1,9 +1,11 @@
-import { BaseEntity } from '@app/database';
+import { BaseEntity } from "@app/database";
+import { BaseRole, Role } from "./role.interface";
 
 interface User {
   name: string;
   email: string;
   password: string;
+  role: Role;
 }
 
 interface BaseUser extends BaseEntity {
@@ -14,6 +16,7 @@ interface BaseUser extends BaseEntity {
   password: string;
   passwordResetToken?: string;
   hashedRefreshToken?: string;
+  role: BaseRole;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date;

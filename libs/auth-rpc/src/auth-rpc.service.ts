@@ -6,8 +6,7 @@ import { ClientProxy } from "@nestjs/microservices";
 export class AuthRpcService {
   constructor(@Inject("AUTH") private readonly authClient: ClientProxy) {}
 
-  public validateAuthToken(accessToken: string) {
-    console.log("accessToken", accessToken);
+  public validateAuthToken<JWTAuthPayload>(accessToken: string) {
     return this.authClient.send(VALIDATE_TOKEN, {
       accessToken,
     });

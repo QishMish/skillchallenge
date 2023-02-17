@@ -1,39 +1,45 @@
-import { Exclude } from 'class-transformer';
-import { BaseUser } from '@app/types';
+import { Exclude } from "class-transformer";
+import { BaseRole, BaseUser } from "@app/types";
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
-} from 'typeorm';
+} from "typeorm";
+import { RoleEntity } from "./role.entity";
 
-@Entity({ name: 'users' })
+@Entity({ name: "users" })
 class UserEntity implements BaseUser {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: "varchar", nullable: false })
   public name: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: "varchar", nullable: false })
   public email: string;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ type: "boolean", default: false })
   public isEmailConfirmed: boolean;
 
   @Exclude()
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: "varchar", nullable: false })
   public password: string;
 
   @Exclude()
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: "varchar", nullable: true })
   public passwordResetToken: string;
 
   @Exclude()
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ type: "varchar", nullable: true })
   public hashedRefreshToken: string;
+
+  @ManyToOne(() => RoleEntity, (role) => role.user, { eager: true })
+  public role: BaseRole;
 
   @Exclude()
   @CreateDateColumn()

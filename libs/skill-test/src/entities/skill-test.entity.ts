@@ -1,37 +1,47 @@
 import { Exclude } from "class-transformer";
-import { BaseUser } from "@app/types";
+import { BaseQuestion } from "@app/types";
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
 import { BaseSkillTest } from "@app/types";
+import { QuestionEntity } from "@app/question";
 
 @Entity({ name: "skill_tests" })
 class SkillTestEntity implements BaseSkillTest {
   @PrimaryGeneratedColumn()
-  id: number;
-  
-  @Column({ type: "varchar" })
-  title: string;
+  public id: number;
 
   @Column({ type: "varchar" })
-  subtitle: string;
+  public title: string;
 
   @Column({ type: "varchar" })
-  description: string;
+  public subtitle: string;
 
-  @Column({ type: "integer" })
-  time: number;
+  @Column({ type: "varchar" })
+  public description: string;
 
-  @Column({ type: "timestamp with time zone" })
-  expiresAt: Date;
+  @Column({ type: "integer", nullable: true })
+  public time: number;
 
-  @Column({ type: "smallint" })
-  numberOfQuestions: number;
+  @Column({ type: "timestamp with time zone", nullable: true })
+  public expiresAt: Date;
+
+  @Column({ type: "smallint", default: 0 })
+  public numberOfQuestions: number;
+
+  @Column({ type: "int", nullable: true })
+  public createdBy: number;
+
+  @OneToMany(() => QuestionEntity, (questions) => questions.skilltest, {
+    eager: true,
+  })
+  public questions: BaseQuestion[];
 
   @Exclude()
   @CreateDateColumn()

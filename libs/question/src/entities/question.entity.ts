@@ -1,14 +1,18 @@
 import { Exclude } from "class-transformer";
-import { QuestionTypesEnum } from "@app/types";
+import { BaseSkillTest, QuestionTypesEnum } from "@app/types";
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { BaseQuestion } from "@app/types/interfaces/questions";
+import { BaseOption, BaseQuestion } from "@app/types/interfaces/questions";
+import { OptionEntity } from "@app/option";
+import { SkillTestEntity } from "@app/skill-test";
 
 @Entity({ name: "questions" })
 class QuestionEntity implements BaseQuestion {
@@ -24,14 +28,16 @@ class QuestionEntity implements BaseQuestion {
   })
   questionType: QuestionTypesEnum;
 
-  @Column({ type: "timestamp with time zone" })
-  expiresAt: Date;
+  @Column({ type: "int", nullable: true })
+  mediaId: number;
 
-  @Column({ type: "smallint" })
-  numberOfQuestions: number;
+  @ManyToOne(() => SkillTestEntity, (skilltest) => skilltest.questions)
+  public skilltest: BaseSkillTest;
 
-  @Column({ type: "varchar" })
-  media: any;
+  @OneToMany(() => OptionEntity, (options) => options.question, {
+    eager: true,
+  })
+  options: BaseOption[];
 
   @Exclude()
   @CreateDateColumn()

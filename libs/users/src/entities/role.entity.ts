@@ -1,29 +1,30 @@
 import { Exclude } from "class-transformer";
-import { BaseOption, BaseQuestion } from "@app/types";
+import { BaseRole, BaseUser, RoleEnum } from "@app/types";
 import {
   Column,
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
-  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
-import { QuestionEntity } from "@app/question";
+import { UserEntity } from "./user.entity";
 
-@Entity({ name: "options" })
-class OptionEntity implements BaseOption {
+@Entity({ name: "roles" })
+class RoleEntity implements BaseRole {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: "varchar" })
-  name: string;
+  @Column({
+    type: "enum",
+    enum: RoleEnum,
+    default: RoleEnum.USER,
+  })
+  public name: RoleEnum;
 
-  @Column({ type: "boolean" })
-  isCorrect: boolean;
-
-  @ManyToOne(() => QuestionEntity, (question) => question.options)
-  question: BaseQuestion;
+  @OneToMany(() => UserEntity, (user) => user.role)
+  public user: BaseUser[];
 
   @Exclude()
   @CreateDateColumn()
@@ -38,4 +39,4 @@ class OptionEntity implements BaseOption {
   public deletedAt: Date;
 }
 
-export { OptionEntity };
+export { RoleEntity };

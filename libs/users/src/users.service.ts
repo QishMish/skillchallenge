@@ -1,19 +1,26 @@
-import { UsersRepository } from './users.repository';
-import { Injectable } from '@nestjs/common';
-import { User, BaseUser } from '@app/types';
-import { FindManyOptions, FindOneOptions, FindOptionsWhere } from 'typeorm';
-import { UsersServiceInterface } from './interfaces';
-import { CryptoService } from '@app/utils';
+import { UsersRepository } from "./users.repository";
+import { Injectable } from "@nestjs/common";
+import { User, BaseUser } from "@app/types";
+import { FindManyOptions, FindOneOptions, FindOptionsWhere } from "typeorm";
+import { UsersServiceInterface } from "./interfaces";
+import { CryptoService } from "@app/utils";
+import { RolesRepository } from "./roles.repository";
 
 @Injectable()
 export class UsersService implements UsersServiceInterface {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly cryptoService: CryptoService,
+    private readonly rolesRepository: RolesRepository,
+    private readonly cryptoService: CryptoService
   ) {}
 
-  public create(user: User): Promise<BaseUser> {
-    return this.usersRepository.create(user);
+  public async create(user: User): Promise<BaseUser> {
+    const defaultRole = await this.rolesRepository.findOrCreate(user.role);
+
+    return this.usersRepository.create({
+      ...user,
+      role: defaultRole,
+    });
   }
 
   public find(filterOptions?: FindManyOptions<User>): Promise<BaseUser[]> {
@@ -26,7 +33,7 @@ export class UsersService implements UsersServiceInterface {
 
   public update(
     option: FindOptionsWhere<User>,
-    user: Partial<User>,
+    user: Partial<User>
   ): Promise<boolean | BaseUser> {
     return this.usersRepository.update(option, user);
   }
@@ -37,13 +44,13 @@ export class UsersService implements UsersServiceInterface {
 
   public async setHashedRefreshToken(
     userId: number,
-    refreshToken: string,
+    refreshToken: string
   ): Promise<boolean | BaseUser> {
     const hashedRefreshToken = await this.cryptoService.hash(refreshToken);
 
     return this.usersRepository.setHashedRefreshToken(
       userId,
-      hashedRefreshToken,
+      hashedRefreshToken
     );
   }
 

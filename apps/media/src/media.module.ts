@@ -33,13 +33,6 @@ import { JwtAuthGuard } from "@app/auth-rpc";
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        console.log({
-          host: configService.get("DB_HOST"),
-          port: configService.get("DB_PORT"),
-          username: configService.get("DB_USER"),
-          password: configService.get("DB_PASWORD"),
-          database: configService.get("DB_NAME"),
-        });
         return {
           type: "postgres",
           host: configService.get("DB_HOST"),

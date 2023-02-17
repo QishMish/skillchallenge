@@ -2,13 +2,14 @@ import { HealthCheckModule } from "./../../../libs/health-check/src/health-check
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { Module, ClassSerializerInterceptor } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { UserEntity } from "@app/users";
+import { UserEntity, UsersLibModule } from "@app/users";
 import { AuthController } from "./auth.controller";
 import { AuthLibModule } from "@app/auth";
 import * as Joi from "@hapi/joi";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { RmqModule } from "@app/rmq";
+import { RoleEntity } from "@app/users/entities/role.entity";
 
 @Module({
   imports: [
@@ -37,7 +38,7 @@ import { RmqModule } from "@app/rmq";
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {
-          type: 'postgres',
+          type: "postgres",
           host: configService.get("DB_HOST"),
           port: configService.get("DB_PORT"),
           username: configService.get("DB_USER"),
@@ -46,7 +47,7 @@ import { RmqModule } from "@app/rmq";
           synchronize: true,
           logging:
             configService.get("NODE_ENV") === "development" ? true : false,
-          entities: [UserEntity],
+          entities: [UserEntity, RoleEntity],
         };
       },
     }),
@@ -60,7 +61,11 @@ import { RmqModule } from "@app/rmq";
     RmqModule.register({
       name: "TOKEN",
     }),
+    RmqModule.register({
+      name: "SKILLTEST",
+    }),
     AuthLibModule,
+    UsersLibModule,
     HealthCheckModule.register({
       serviceName: "auth",
     }),

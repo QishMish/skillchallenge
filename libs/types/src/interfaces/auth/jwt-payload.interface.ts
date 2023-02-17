@@ -2,6 +2,7 @@ interface JWTAuthPayload {
   userId: number;
   email: string;
   name: string;
+  role: string;
 }
 
 interface TokenResponse {

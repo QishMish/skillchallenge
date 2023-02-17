@@ -23,7 +23,7 @@ interface AuthServiceInterface {
     refreshToken: string
   ): Promise<boolean | BaseUser>;
   removeRefreshToken(userId: number): Promise<boolean>;
-  validateAccessToken(accessToken: string): Promise<BaseUser | never>;
+  validateAccessToken(accessToken: string): Promise<JWTAuthPayload | never>;
 }
 
 export { AuthServiceInterface };

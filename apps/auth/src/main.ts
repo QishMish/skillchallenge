@@ -17,6 +17,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   app.connectMicroservice<RmqOptions>(rmqService.getOptions("AUTH", true));
+  app.connectMicroservice<RmqOptions>(rmqService.getOptions("SKILLTEST", true));
 
   await app.startAllMicroservices();
   await app.listen(configService.get("PORT"));
