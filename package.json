@@ -115,7 +115,10 @@
       "^@app/token(|/.*)$": "<rootDir>/libs/token/src/$1",
       "^@app/skill-test(|/.*)$": "<rootDir>/libs/skill-test/src/$1",
       "^@app/question(|/.*)$": "<rootDir>/libs/question/src/$1",
-      "^@app/option(|/.*)$": "<rootDir>/libs/option/src/$1"
+      "^@app/option(|/.*)$": "<rootDir>/libs/option/src/$1",
+      "^@app/media(|/.*)$": "<rootDir>/libs/media/src/$1",
+      "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
+      "^@app/auth-rpc(|/.*)$": "<rootDir>/libs/auth-rpc/src/$1"
     }
   }
 }

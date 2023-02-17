@@ -143,6 +143,26 @@ export class AuthService implements AuthServiceInterface {
     return this.usersService.removeRefreshToken(userId);
   }
 
+  public async validateAccessToken(accessToken: string): Promise<BaseUser> {
+    const payload = await this.jwtService.validateJwtAccessToken(accessToken);
+
+    if (!payload) {
+      throw new UnauthorizedException();
+    }
+
+    const user = await this.usersService.findOne({
+      where: {
+        id: payload.userId,
+      },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    return user;
+  }
+
   private validateConfirmPassword(
     password: string,
     confirmPassword: string

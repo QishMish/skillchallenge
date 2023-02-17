@@ -15,14 +15,15 @@ import { AUTH_SERVICE, SignOutResponseInterceptor } from "@app/auth";
 import { AuthServiceInterface, JwtAuthGuard } from "@app/auth";
 import { UseGuards } from "@nestjs/common";
 import { User } from "@app/auth";
-import { BaseUser } from "@app/types";
+import { BaseUser, AuthTokens } from "@app/types";
 import { AuthGuard } from "@nestjs/passport";
 import { Request } from "@nestjs/common";
 import { UseInterceptors } from "@nestjs/common";
 import { ClassSerializerInterceptor } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
-import { ClientProxy } from "@nestjs/microservices";
-import { firstValueFrom } from "rxjs";
+import { ClientProxy, MessagePattern, Payload } from "@nestjs/microservices";
+import { firstValueFrom, lastValueFrom } from "rxjs";
+import { SIGN_AUTH_TOKENS, VALIDATE_TOKEN } from "@app/common";
 
 @Controller()
 export class AuthController implements OnApplicationBootstrap {
@@ -61,7 +62,7 @@ export class AuthController implements OnApplicationBootstrap {
     //   });
 
     const { accessToken, refreshToken } = await firstValueFrom(
-      this.tokenClient.send("sign_auth_tokens", {
+      this.tokenClient.send(SIGN_AUTH_TOKENS, {
         id: userId,
         name: name,
         email: email,
@@ -111,8 +112,8 @@ export class AuthController implements OnApplicationBootstrap {
     //     email,
     //   });
 
-    const { accessToken, refreshToken } = await firstValueFrom(
-      this.tokenClient.send("sign_auth_tokens", {
+    const { accessToken, refreshToken } = await lastValueFrom(
+      this.tokenClient.send(SIGN_AUTH_TOKENS, {
         id: userId,
         name: name,
         email: email,
@@ -120,11 +121,11 @@ export class AuthController implements OnApplicationBootstrap {
     );
 
     const { accessCookie, refreshCookie } =
-    await this.authService.generateAuthCookies({
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-    });
-    
+      await this.authService.generateAuthCookies({
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+      });
+
     await this.authService.setHashedRefreshToken(userId, refreshToken);
 
     res.setHeader("Set-Cookie", [accessCookie, refreshCookie]);
@@ -184,5 +185,14 @@ export class AuthController implements OnApplicationBootstrap {
   @HttpCode(HttpStatus.OK)
   public currentUser(@User() user: BaseUser): BaseUser {
     return user;
+  }
+
+  @MessagePattern(VALIDATE_TOKEN)
+  @Throttle(100, 60)
+  @HttpCode(HttpStatus.OK)
+  public validateToken(
+    @Payload() payload: Omit<AuthTokens, "refreshToken">
+  ): Promise<BaseUser> {
+    return this.authService.validateAccessToken(payload.accessToken);
   }
 }

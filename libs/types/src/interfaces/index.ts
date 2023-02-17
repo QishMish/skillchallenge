@@ -5,3 +5,4 @@ export * from './mail';
 export * from './skill-tests';
 export * from './questions';
 export * from './common';
+export * from './media';

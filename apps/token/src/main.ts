@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { RmqOptions } from '@nestjs/microservices';
 import { TokenModule } from './token.module';
+import * as cookieParser from "cookie-parser";
 
 async function bootstrap() {
   const app = await NestFactory.create(TokenModule);
@@ -13,7 +14,8 @@ async function bootstrap() {
   const configService = app.get(ConfigService)
 
   app.connectMicroservice<RmqOptions>(rmqService.getOptions('TOKEN', true));
-  
+  app.use(cookieParser());
+
   await app.startAllMicroservices()
   await app.listen(configService.get('PORT'))
 

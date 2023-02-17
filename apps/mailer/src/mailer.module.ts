@@ -1,13 +1,12 @@
-import { HealthCheckModule } from "./../../../libs/health-check/src/health-check.module";
 import { ConfigModule } from "@nestjs/config";
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { MailerController } from "./mailer.controller";
 import { MailerLibModule } from "@app/mail";
 import { RmqModule } from "@app/rmq";
 import * as Joi from "joi";
-import { BullModule } from "@nestjs/bull";
+import { HealthCheckModule } from "@app/health-check";
+import { AuthMiddleware, AuthRpcModule, JwtAuthGuard } from "@app/auth-rpc";
 import { APP_GUARD } from "@nestjs/core";
-import { AuthLibModule, JwtAuthGuard } from "@app/auth";
 
 @Module({
   imports: [
@@ -32,8 +31,18 @@ import { AuthLibModule, JwtAuthGuard } from "@app/auth";
     HealthCheckModule.register({
       serviceName: "mailer",
     }),
+    AuthRpcModule,
   ],
   controllers: [MailerController],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
-export class MailerModule {}
+export class MailerModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes("*");
+  }
+}

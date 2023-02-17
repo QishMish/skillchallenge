@@ -2,11 +2,11 @@ import { BaseQuestion, Question } from "@app/types";
 import { Injectable } from "@nestjs/common";
 import { FindManyOptions, FindOneOptions, FindOptionsWhere } from "typeorm";
 import { QuestionsServiceInterface } from "./interfaces";
-import { QuestionsRepository } from "./question.repository";
+import { QuestionRepository } from "./question.repository";
 
 @Injectable()
 export class QuestionService implements QuestionsServiceInterface {
-  constructor(private readonly questionsRepository: QuestionsRepository) {}
+  constructor(private readonly questionsRepository: QuestionRepository) {}
   create(entity: unknown): Promise<BaseQuestion> {
     return this.questionsRepository.create(entity);
   }

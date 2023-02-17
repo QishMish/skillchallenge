@@ -19,6 +19,7 @@ import { RmqModule } from "@app/rmq";
         ENV: Joi.string().required(),
         PORT: Joi.number().required(),
         DB_HOST: Joi.string().required(),
+        DB_DIALECT: Joi.string().required().equal("postgres"),
         DB_PORT: Joi.number().required(),
         DB_USER: Joi.string().required(),
         DB_PASWORD: Joi.string().required(),
@@ -36,7 +37,7 @@ import { RmqModule } from "@app/rmq";
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         return {
-          type: "postgres",
+          type: 'postgres',
           host: configService.get("DB_HOST"),
           port: configService.get("DB_PORT"),
           username: configService.get("DB_USER"),

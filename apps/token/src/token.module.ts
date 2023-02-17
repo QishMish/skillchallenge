@@ -1,8 +1,10 @@
+import { AuthMiddleware, AuthRpcModule, JwtAuthGuard } from "@app/auth-rpc";
 import { HealthCheckModule } from "@app/health-check";
 import { RmqModule } from "@app/rmq";
 import { TokenLibModule } from "@app/token";
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { APP_GUARD } from "@nestjs/core";
 import * as Joi from "joi";
 import { TokenController } from "./token.controller";
 
@@ -27,8 +29,18 @@ import { TokenController } from "./token.controller";
     HealthCheckModule.register({
       serviceName: "token",
     }),
+    AuthRpcModule,
   ],
   controllers: [TokenController],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+  ],
 })
-export class TokenModule {}
+export class TokenModule  implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).forRoutes("*");
+  }
+}

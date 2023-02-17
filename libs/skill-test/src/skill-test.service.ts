@@ -2,11 +2,11 @@ import { BaseSkillTest, SkillTest } from "@app/types";
 import { Injectable } from "@nestjs/common";
 import { FindManyOptions, FindOneOptions, FindOptionsWhere } from "typeorm";
 import { SkillTestsServiceInterface } from "./interfaces";
-import { SkillTestsRepository } from "./skill-test.repository";
+import { SkillTestRepository } from "./skill-test.repository";
 
 @Injectable()
 export class SkillTestService implements SkillTestsServiceInterface {
-  constructor(private readonly skillTestsRepository: SkillTestsRepository) {}
+  constructor(private readonly skillTestsRepository: SkillTestRepository) {}
   create(entity: unknown): Promise<BaseSkillTest> {
     return this.skillTestsRepository.create(entity);
   }

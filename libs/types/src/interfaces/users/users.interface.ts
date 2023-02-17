@@ -7,6 +7,7 @@ interface User {
 }
 
 interface BaseUser extends BaseEntity {
+  id: number;
   name: string;
   email: string;
   isEmailConfirmed: boolean;

@@ -9,24 +9,34 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: skillchallenge
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - auth_pg_data:/var/lib/postgresql/data
+  mediaPg:
+    image: postgres:latest
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: skillchallenge_media
+    volumes:
+      - media_pg_data:/var/lib/postgresql/data
     # networks:
     #   - backend
-  # rabbitmq:
-  #   image: rabbitmq:3.8.25-management-alpine
-  #   container_name: "rabbitmq"
-  #   ports:
-  #     - 5672:5672
-  #     - 15672:15672
-  #   volumes:
-  #     - rabbit_data:/var/lib/rabbitmq/
-  #     - rabbit_data:/var/log/rabbitmq/
+  rabbitmq:
+    image: rabbitmq:3.9.10-management
+    container_name: "rabbitmq"
+    ports:
+      - 5672:5672
+      - 15672:15672
+    # volumes:
+    #   - rabbit_data:/var/lib/rabbitmq/
+    #   - rabbit_data:/var/log/rabbitmq/
   # networks:
   #   - backend
-  rabbitmq:
-    image: rabbitmq
-    ports:
-      - "5672:5672"
+  # rabbitmq:
+  #   image: rabbitmq
+  #   ports:
+  #     - "5672:5672"
   redis:
     image: redis:7-alpine
     ports:
@@ -115,12 +125,34 @@ services:
       - rabbitmq
     environment:
       - RABBIT_MQ_URI=amqp://rabbitmq:5672
+  media:
+    build:
+      context: ./
+      dockerfile: apps/media/Dockerfile
+    command: npm run start:dev media
+    volumes:
+      - .:/usr/src/media
+      - /usr/src/media/node_modules
+    ports:
+      - "3006:3006"
+    depends_on:
+      - mediaPg
+      # - mailer
+      - rabbitmq
+    # networks:
+    #   - backend
+    env_file:
+      - "apps/media/.env"
+    links:
+      - rabbitmq
+    environment:
+      - RABBIT_MQ_URI=amqp://rabbitmq:5672
 # networks:
 #   backend:
 #     driver: bridge
 volumes:
-  pg_data:
-    driver: local
+  auth_pg_data:
+  media_pg_data:
   rabbit_data:
     driver: local
   mongo_data:

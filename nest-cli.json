@@ -107,6 +107,42 @@
       "compilerOptions": {
         "tsConfigPath": "libs/option/tsconfig.lib.json"
       }
+    },
+    "media": {
+      "type": "application",
+      "root": "apps/media",
+      "entryFile": "main",
+      "sourceRoot": "apps/media/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/media/tsconfig.app.json"
+      }
+    },
+    "media-lib": {
+      "type": "library",
+      "root": "libs/media",
+      "entryFile": "index",
+      "sourceRoot": "libs/media/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/media/tsconfig.lib.json"
+      }
+    },
+    "common": {
+      "type": "library",
+      "root": "libs/common",
+      "entryFile": "index",
+      "sourceRoot": "libs/common/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/common/tsconfig.lib.json"
+      }
+    },
+    "auth-rpc": {
+      "type": "library",
+      "root": "libs/auth-rpc",
+      "entryFile": "index",
+      "sourceRoot": "libs/auth-rpc/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/auth-rpc/tsconfig.lib.json"
+      }
     }
   }
 }

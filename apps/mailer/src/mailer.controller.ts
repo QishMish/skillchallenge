@@ -1,9 +1,11 @@
 import { MailOptionsDto } from "./dtos/mail-options.dto";
 import { MailServiceInterface, MAIL_SERVICE } from "@app/mail";
-import { Body, Controller, Get, Inject, Post } from "@nestjs/common";
-import { ClientGrpcProxy, EventPattern, Payload } from "@nestjs/microservices";
+import { Body, Controller, Get, Inject, Post, UseGuards } from "@nestjs/common";
+import { EventPattern, Payload } from "@nestjs/microservices";
+import { JwtAuthGuard } from "@app/auth-rpc";
 
-@Controller("")
+@Controller("/")
+@UseGuards(JwtAuthGuard)
 export class MailerController {
   constructor(
     @Inject(MAIL_SERVICE) private readonly mailerService: MailServiceInterface

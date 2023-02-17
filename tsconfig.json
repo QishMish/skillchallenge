@@ -89,6 +89,24 @@
       ],
       "@app/option/*": [
         "libs/option/src/*"
+      ],
+      "@app/media": [
+        "libs/media/src"
+      ],
+      "@app/media/*": [
+        "libs/media/src/*"
+      ],
+      "@app/common": [
+        "libs/common/src"
+      ],
+      "@app/common/*": [
+        "libs/common/src/*"
+      ],
+      "@app/auth-rpc": [
+        "libs/auth-rpc/src"
+      ],
+      "@app/auth-rpc/*": [
+        "libs/auth-rpc/src/*"
       ]
     }
   }

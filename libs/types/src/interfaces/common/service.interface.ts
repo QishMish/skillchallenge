@@ -5,11 +5,11 @@ interface ServiceInterface<
   K extends Record<string, any>,
   T extends BaseEntity
 > {
-  create(entity: unknown): Promise<T>;
-  find(filterOptions?: FindManyOptions<K>): Promise<T[]>;
-  findOne(option: FindOneOptions<K>): Promise<T>;
-  update(option: FindOptionsWhere<K>, entity: Partial<T>): Promise<boolean | T>;
-  delete(option: FindOneOptions<K>): Promise<boolean | T>;
+  create(entity: K): Promise<T>;
+  find(filterOptions?: FindManyOptions<T>): Promise<T[]>;
+  findOne(option: FindOneOptions<T>): Promise<T>;
+  update(option: FindOptionsWhere<T>, entity: Partial<T>): Promise<boolean | T>;
+  delete(option: FindOneOptions<T>): Promise<boolean | T>;
 }
 
 export { ServiceInterface };
