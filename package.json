@@ -37,6 +37,8 @@
     "amqplib": "^0.10.3",
     "bcrypt": "^5.1.0",
     "bull": "^4.10.3",
+    "cache-manager": "^5.1.6",
+    "cache-manager-ioredis": "^2.1.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
@@ -118,7 +120,8 @@
       "^@app/option(|/.*)$": "<rootDir>/libs/option/src/$1",
       "^@app/media(|/.*)$": "<rootDir>/libs/media/src/$1",
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1",
-      "^@app/auth-rpc(|/.*)$": "<rootDir>/libs/auth-rpc/src/$1"
+      "^@app/auth-rpc(|/.*)$": "<rootDir>/libs/auth-rpc/src/$1",
+      "^@app/cache(|/.*)$": "<rootDir>/libs/cache/src/$1"
     }
   }
 }

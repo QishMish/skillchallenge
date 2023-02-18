@@ -61,9 +61,6 @@ import { RoleEntity } from "@app/users/entities/role.entity";
     RmqModule.register({
       name: "TOKEN",
     }),
-    RmqModule.register({
-      name: "SKILLTEST",
-    }),
     AuthLibModule,
     UsersLibModule,
     HealthCheckModule.register({

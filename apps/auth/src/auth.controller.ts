@@ -23,7 +23,12 @@ import { ClassSerializerInterceptor } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
 import { ClientProxy, MessagePattern, Payload } from "@nestjs/microservices";
 import { firstValueFrom, lastValueFrom } from "rxjs";
-import { GET_USERS_BY_IDS, SIGN_AUTH_TOKENS, VALIDATE_TOKEN } from "@app/common";
+import {
+  GET_USERS_BY_IDS,
+  SEND_EMAIL,
+  SIGN_AUTH_TOKENS,
+  VALIDATE_TOKEN,
+} from "@app/common";
 import { UsersServiceInterface, USERS_SERVICE } from "@app/users";
 import { In } from "typeorm";
 
@@ -36,7 +41,14 @@ export class AuthController implements OnApplicationBootstrap {
     @Inject("TOKEN") private readonly tokenClient: ClientProxy
   ) {}
   async onApplicationBootstrap() {
-    await this.mailClient.connect().catch((err) => console.log(err));
+    await this.mailClient
+      .connect()
+      .then(() => console.log("connected to mail client"))
+      .catch((err) => console.log(err));
+    await this.tokenClient
+      .connect()
+      .then(() => console.log("connected to token client"))
+      .catch((err) => console.log(err));
   }
 
   @Post("sign-up")
@@ -70,7 +82,7 @@ export class AuthController implements OnApplicationBootstrap {
 
     request.res.setHeader("Set-Cookie", [accessCookie, refreshCookie]);
 
-    this.mailClient.emit("send_email", {
+    this.mailClient.emit(SEND_EMAIL, {
       to: user.email,
       subject: "Welcome",
       text: "Welcome to skillchallenge",
@@ -107,7 +119,8 @@ export class AuthController implements OnApplicationBootstrap {
     await this.authService.setHashedRefreshToken(userId, refreshToken);
 
     res.setHeader("Set-Cookie", [accessCookie, refreshCookie]);
-    this.mailClient.emit("send_email", {
+
+    this.mailClient.emit(SEND_EMAIL, {
       to: user.email,
       subject: "Welcome",
       text: "Welcome to skillchallenge",
@@ -168,7 +181,6 @@ export class AuthController implements OnApplicationBootstrap {
   }
 
   @MessagePattern(VALIDATE_TOKEN)
-  @HttpCode(HttpStatus.OK)
   public validateToken(
     @Payload() payload: Omit<AuthTokens, "refreshToken">
   ): Promise<JWTAuthPayload> {
@@ -176,8 +188,7 @@ export class AuthController implements OnApplicationBootstrap {
   }
 
   @MessagePattern(GET_USERS_BY_IDS)
-  @HttpCode(HttpStatus.OK)
-  public async getUserById(
+  public async getUsersByIds(
     @Payload() payload: { ids: number[] }
   ): Promise<Record<number, JWTAuthPayload>> {
 

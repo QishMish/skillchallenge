@@ -10,7 +10,8 @@ import { APP_GUARD } from "@nestjs/core";
 import { SkillTestEntity, SkillTestLibModule } from "@app/skill-test";
 import { QuestionController } from "./question.controller";
 import { QuestionEntity, QuestionModule } from "@app/question";
-import { OptionEntity, OptionModule } from "@app/option";
+import { OptionEntity } from "@app/option";
+import { CacheConfigModule } from "@app/cache";
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { OptionEntity, OptionModule } from "@app/option";
     AuthRpcModule,
     SkillTestLibModule,
     QuestionModule,
+    CacheConfigModule.register({}),
   ],
   controllers: [SkillTestController, QuestionController],
   providers: [
