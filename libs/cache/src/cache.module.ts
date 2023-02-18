@@ -16,8 +16,6 @@ export class CacheConfigModule {
         CacheModule.registerAsync({
           imports: [ConfigModule],
           useFactory: (configService: ConfigService) => {
-            console.log(configService.get("REDIS_HOST"))
-            console.log(configService.get("REDIS_PORT"))
             return {
               store: redisStore,
               host: configService.get("REDIS_HOST"),
